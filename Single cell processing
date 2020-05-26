@@ -1,0 +1,171 @@
+library(Seurat)
+library(cowplot)
+library(dplyr)
+library(ggplot2)
+library(limma)
+
+setwd("C:/Projects/Single_cell/Joe/BT474-PTEN")
+
+data<-read.table(file="../BT474_dge.txt",header = T,check.names=FALSE)
+row.names(data)<-data[,1]
+data<-data[,-1]
+BT474 <- CreateSeuratObject(counts = data, project = "HER2+", min.cells = 3, min.features = 200,meta.data=data.frame(row.names=colnames(data),cell=colnames(data),sample="BT474",type="BT474",celltype="BT474"))
+
+data<-read.table(file="../BT474shPTEN_dge.txt",header = T,check.names=FALSE)
+row.names(data)<-data[,1]
+data<-data[,-1]
+BT474shPTEN <- CreateSeuratObject(counts = data, project = "HER2+", min.cells = 3, min.features = 200,meta.data=data.frame(row.names=colnames(data),cell=colnames(data),sample="BT474shPTEN",type="BT474shPTEN",celltype="BT474shPTEN"))
+
+celltype<-read.table(file="../Normal_celltype_cell_cycle_removed.txt",header = T,check.names=FALSE)
+celltype1<-subset(celltype,sample=="C94366")
+row.names(celltype1)<-gsub("_\\d","_1",row.names(celltype1))
+data<-read.table(file="../94366_Step13c_out_gene_exon_tagged.dge.txt",header = T,check.names=FALSE)
+row.names(data)<-data[,1]
+data<-data[,-1]
+colnames(data)<-gsub("$","_1",colnames(data))
+celltype1<-subset(celltype,sample=="C94366" & celltype %in% c("Luminal_L2_epithelial_cells","Luminal_L1.1_epithelial_cells", "Luminal_L1.2_epithelial_cells", "Basal_epithelial_cells"))
+common <- intersect(colnames(data), rownames(celltype1))
+data<-data[,common]
+C94366 <- CreateSeuratObject(counts = data, project = "C94366", min.cells = 3, min.features = 200,meta.data=cbind(celltype1,type="Normal"))
+
+celltype2<-subset(celltype,sample=="C94367")
+row.names(celltype2)<-gsub("_\\d","_2",row.names(celltype2))
+data<-read.table(file="../94367_Step13c_out_gene_exon_tagged.dge.txt",header = T,check.names=FALSE)
+row.names(data)<-data[,1]
+data<-data[,-1]
+colnames(data)<-gsub("$","_2",colnames(data))
+celltype2<-subset(celltype,sample=="C94367" & celltype %in% c("Luminal_L2_epithelial_cells","Luminal_L1.1_epithelial_cells", "Luminal_L1.2_epithelial_cells", "Basal_epithelial_cells"))
+common <- intersect(colnames(data), rownames(celltype2))
+data<-data[,common]
+C94367 <- CreateSeuratObject(counts = data, project = "C94367", min.cells = 3, min.features = 200,meta.data=cbind(celltype2,type="Normal"))
+
+celltype3<-subset(celltype,sample=="C94368")
+row.names(celltype3)<-gsub("_\\d","_3",row.names(celltype3))
+data<-read.table(file="../94368_Step13c_out_gene_exon_tagged.dge.txt",header = T,check.names=FALSE)
+row.names(data)<-data[,1]
+data<-data[,-1]
+colnames(data)<-gsub("$","_3",colnames(data))
+celltype3<-subset(celltype,sample=="C94368" & celltype %in% c("Luminal_L2_epithelial_cells","Luminal_L1.1_epithelial_cells", "Luminal_L1.2_epithelial_cells", "Basal_epithelial_cells"))
+common <- intersect(colnames(data), rownames(celltype3))
+data<-data[,common]
+C94368 <- CreateSeuratObject(counts = data, project = "C94368", min.cells = 3, min.features = 200,meta.data=cbind(celltype3,type="Normal"))
+
+setwd("C:/Projects/Single_cell/Joe/BT474-PTEN/Integrated/new")
+
+BC.list<-list(BT474=BT474,C94366=C94366,C94367=C94367,C94368=C94368)
+
+for (i in 1:length(BC.list)) {
+  BC.list[[i]] <- NormalizeData(BC.list[[i]], verbose = FALSE)
+  BC.list[[i]] <- FindVariableFeatures(BC.list[[i]], selection.method = "vst", 
+                                             nfeatures = 2000, verbose = FALSE)
+}
+BC.anchors <- FindIntegrationAnchors(object.list = BC.list, dims = 1:15)
+BC.integrated <- IntegrateData(anchorset = BC.anchors, dims = 1:15)
+DefaultAssay(BC.integrated) <- "integrated"
+
+# Run the standard workflow for visualization and clustering
+BC.integrated <- ScaleData(BC.integrated, verbose = FALSE)
+BC.integrated <- RunPCA(BC.integrated, npcs = 15, verbose = FALSE)
+
+#Cell Cycle Regression
+s.genes <- cc.genes$s.genes
+g2m.genes <- cc.genes$g2m.genes
+BC.integrated <- CellCycleScoring(BC.integrated, s.features = s.genes, g2m.features = g2m.genes, set.ident = TRUE)
+BC.integrated <- ScaleData(BC.integrated, vars.to.regress = c("S.Score", "G2M.Score"), features = rownames(BC.integrated))
+##BC.integrated <- RunPCA(BC.integrated, features = c(s.genes, g2m.genes))
+BC.integrated <- RunPCA(BC.integrated, npcs = 15, verbose = FALSE)
+
+# t-SNE and Clustering
+BC.integrated <- RunUMAP(BC.integrated, reduction = "pca", dims = 1:15)
+BC.integrated <- FindNeighbors(BC.integrated, reduction = "pca", dims = 1:15)
+BC.integrated <- FindClusters(BC.integrated, resolution = 0.4)
+
+pdf(file = "BT474_Normal-epi_PTEN_distribution_split_cc_removed.pdf",width = 20,height = 10)
+DimPlot(BC.integrated, reduction = "umap", split.by = "type")
+dev.off()
+
+DefaultAssay(BC.integrated) <- "RNA"
+
+library(limma)
+library(ggplot2)
+cell_meta<-BC.integrated@meta.data
+set.seed(123456)
+Case_list<-unique(BC.integrated$type)
+for(case in Case_list){
+  if(case != "Normal"){
+  p_list<-vector("list",length(unique(as.character(cell_meta$seurat_clusters))))
+  for(i in 1:length(unique(as.character(cell_meta$seurat_clusters)))){
+      idx <- unique(as.character(cell_meta$seurat_clusters))[i]
+      c_cells <- subset(BC.integrated, idents = idx)
+      Idents(c_cells) <- "type"
+      Samples=c_cells@meta.data
+      Normalsample<-row.names(subset(Samples,type=="Normal"))
+      Cancersample<-row.names(subset(Samples,type==case))
+      if(length(Normalsample>3) & length(Cancersample>3)){
+      expr<-as.matrix(c_cells@assays$RNA@data)
+      new_expr<-as.matrix(expr[,c(Cancersample,Normalsample)])
+      new_sample<-data.frame(Samples=c(Cancersample,Normalsample),type=c(rep("Cancer",length(Cancersample)),rep("Normal",length(Normalsample))))
+      row.names(new_sample)<-paste(new_sample$Samples,row.names(new_sample),sep="_")
+      expr<-new_expr
+      bad <- which(rowSums(expr>0)<3)
+      expr <- expr[-bad,]
+      mm <- model.matrix(~0 + type, data = new_sample) 
+      fit <- lmFit(expr, mm)  
+      head(coef(fit))
+      contr <- makeContrasts(typeCancer - typeNormal, levels = colnames(coef(fit)))
+      tmp <- contrasts.fit(fit, contrasts = contr)
+      tmp <- eBayes(tmp)
+      C_data<-topTable(tmp, sort.by = "P",number=30000)
+      C_data_for_drug<-data.frame(geneSymbol=row.names(C_data),score=C_data$t)
+      C_name<-paste(case,"_C",idx,"_limma.csv",sep = "")
+      #write.csv(C_data,file=C_name,quote = F)
+      C_name<-paste(case,"_C",idx,"_data_for_drug.csv",sep = "")
+      write.csv(C_data_for_drug,file=C_name,quote = F,row.names = F)
+      allg.limma <- C_data
+      sigg.limma <- subset(allg.limma, adj.P.Val < 0.05)
+      nonsigg.limma <- subset(allg.limma, adj.P.Val >= 0.05)
+      
+      #Draw probe valcano
+      both_pos <- sigg.limma[c('logFC', 'adj.P.Val')]
+      
+      both_pos <- as.data.frame(both_pos, stringsAsFactors = FALSE)
+      
+      both_pos$Type <- 'NC'
+      both_pos$Type[both_pos$logFC > log2(2)] <- 'UP'
+      both_pos$Type[both_pos$logFC < log2(1/2)] <- 'DN'
+      
+      hypernum <- nrow(subset(both_pos, Type == 'UP'))
+      hyponum <- nrow(subset(both_pos, Type == 'DN'))
+      
+      both_pos_nonsig <- subset(both_pos, Type == 'NC')
+      both_pos <- subset(both_pos, Type != 'NC')
+      
+      both_nonsig <- nonsigg.limma[c('logFC', 'adj.P.Val')]
+      both_nonsig$Type <- 'NC'
+      both_nonsig <- rbind(both_nonsig, both_pos_nonsig)
+      
+      nonsignum <- nrow(both_nonsig)
+      
+      both_pos <- rbind(both_nonsig, both_pos)
+      p_list[[i]] <- ggplot(both_pos, aes(x = logFC, y = -log10(adj.P.Val)))+
+        ggtitle(paste0('Differentially expressed genes'), 
+                subtitle = paste0('Cluster',idx,'(Up = ', hypernum, ', Down = ', hyponum, 
+                                  ', Normal = ', nonsignum, ')')) +
+        theme(plot.title = element_text(hjust = 0.5))+
+        geom_point(aes(color = Type), alpha = 1, size = 0.5) +
+        scale_colour_manual(limits = c('UP', 'DN', 'NC'), values = c('orange', 'lightskyblue', 'gray40'), labels = c('Up', 'Down', 'Normal')) +
+        labs(x = expression(log[2]~FC), y = expression(-log[10]~adj.~pvalue)) +
+        theme(panel.grid = element_blank(), panel.background = element_rect(color = 'black', fill = 'transparent')) +
+        geom_hline(yintercept = -log10(0.05), color = 'black',linetype = "dotted") + 
+        geom_vline(xintercept = log2(2), color = 'black',linetype = "dotted") + 
+        geom_vline(xintercept = -log2(2), color = 'black',linetype = "dotted") + 
+        theme_bw() + 
+        theme(panel.grid = element_blank())
+      }
+    }
+  pdf(file = paste(case,"_Normal-epi-limma.pdf"),width = 20,height = 10)
+  plot_grid(plotlist=p_list)
+  dev.off()
+  }
+}
+
