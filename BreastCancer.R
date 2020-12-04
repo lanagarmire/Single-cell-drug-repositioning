@@ -78,8 +78,8 @@ saveRDS(Drug.ident.res,file="TNBC_drugs.rds")
 SC.data<-readRDS("TNBC_SCdata.rds")
 Gene.list<-readRDS("TNBC_genelist.rds")
 Drug.ident.res<-readRDS("TNBC_drugs.rds")
-GSE92742.gctx.path="C:/Projects/Drug_reposition/GSE92742_Broad_LINCS_Level5_COMPZ.MODZ_n473647x12328.gctx"
-GSE70138.gctx.path="C:/Projects/Drug_reposition/GSE70138_Broad_LINCS_Level5_COMPZ_n118050x12328.gctx"
+GSE92742.gctx.path="Your_local_path/GSE92742_Broad_LINCS_Level5_COMPZ.MODZ_n473647x12328.gctx"
+GSE70138.gctx.path="Your_local_path/GSE70138_Broad_LINCS_Level5_COMPZ_n118050x12328.gctx"
 Tissue="breast"
 Drug.combinations<-DrugCombination(SC.integrated=SC.data,
                       Gene.data=Gene.list,
@@ -100,9 +100,10 @@ Final.drugs<-TopDrug(SC.integrated=SC.data,
                    FDA.drug.only=TRUE,
                    Case=Case
 )
-
+saveRDS(Final.drugs,file="TNBC_selected_drugs.rds")
 #Select drug combinations
 Final.combinations<-TopCombination(Drug.combination=Drug.combinations,
                    Combination.FDR=0.1,
                    Min.combination.score=1
 )
+saveRDS(Final.combinations,file="TNBC_selected_drugcombinations.rds")
