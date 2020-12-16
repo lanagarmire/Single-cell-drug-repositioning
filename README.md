@@ -15,7 +15,7 @@ undzip this tar file and extract GSM3516947_PDX110, GSM3516948_PDX322 folders fo
 
 ##### Note: Normal_celltype.txt in this repository is needed by BreastCancer.R
 
-##### Bronchoalveolar immune cells in COVID-19 patients
-[GSE145926_RAW.tar](https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE145926&format=file)
+##### Bronchoalveolar immune cells in COVID-19 patients: [GSE145926_RAW.tar](https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE145926&format=file)
+
 undzip this tar file and extract matrix files for COVID19.R
 
