@@ -3,13 +3,11 @@
 ##### COVID19.R is for COVID19 data.
 
 #### Download single-cell gene expression matrix files from GEO before running these scripts.
-##### Normal Human Breast Epithelial Cells:
-[GSE113197_RAW.tar](https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE113197&format=file)
+##### Normal Human Breast Epithelial Cells: [GSE113197_RAW.tar](https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE113197&format=file)
 
 undzip this tar file and extract GSM3099847_Ind5_Expression_Matrix.txt, GSM3099848_Ind6_Expression_Matrix.txt and GSM3099849_Ind7_Expression_Matrix.txt files for BreastCancer.R
 
-##### Human Breast Cancer Epithelial Cells:
-[GSE123926_RAW.tar](https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE123926&format=file)
+##### Human Breast Cancer Epithelial Cells: [GSE123926_RAW.tar](https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE123926&format=file)
 
 undzip this tar file and extract GSM3516947_PDX110, GSM3516948_PDX322 folders for BreastCancer.R
 
