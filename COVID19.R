@@ -1,6 +1,7 @@
 #Download dataset GSE145926 from GEO before running this script.
 
 library('Asgard')
+library('Seurat')
 
 setwd("Your_local_path/")
 
