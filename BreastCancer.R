@@ -1,7 +1,7 @@
 #Download datasets GSE113197 and GSE123926 from GEO before running this script.
 
 library('Asgard')
-
+library('Seurat')
 setwd("Your_local_path/")
 
 #Load normal sample Ind5 from GSE113197 dataset
