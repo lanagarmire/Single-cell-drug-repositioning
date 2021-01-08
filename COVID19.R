@@ -75,6 +75,69 @@ Healthy<-merge(x=C51,y=c(C52,C100))
 SC.list<-list(Mild.COVID19=Mild.COVID19,Severe.COVID19=Severe.COVID19,Healthy=Healthy)
 SC.data<-SCalignment(SC.list,by.CellType=TRUE)
 
+#View alignment results
+sub.data<-subset(SC.data,type %in% c("Severe.COVID19","Mild.COVID19"))
+pdf(file = "COVID19_immune_cc_removed_SvsM_celltype.pdf",width = 7,height = 3.5)
+DimPlot(sub.data, reduction = "umap", split.by = "type",group.by ="celltype",label = T,pt.size=1.9)
+dev.off()
+
+sub.data<-subset(SC.data,type %in% c("Severe.COVID19"))
+pdf(file = "COVID19_immune_cc_removed_S_celltype.pdf",width = 7,height = 3.5)
+DimPlot(sub.data, reduction = "umap", split.by = "outcome",group.by ="celltype",label = T,pt.size=0.1)
+dev.off()
+
+#Cell type changes
+library('ggplot2')
+library('cowplot')
+data<-as.data.frame(SC.data@meta.data)
+data<-subset(data,type %in% c("Severe.COVID19" ))
+celltypes<-unique(data$celltype)
+final.table<-data.frame()
+for(i in c("Cured","Death")){
+  sub.data<-subset(data,outcome==i)
+  severity<-unique(sub.data$type)
+  celltype.freq<-round(100*table(sub.data$celltype)/nrow(sub.data),2)
+  celltype.freq<-celltype.freq[celltypes]
+  final.table<-rbind(final.table,celltype.freq)
+}
+colnames(final.table)<-celltypes
+row.names(final.table)<-c("Cured","Death")
+##Fisher's P-value 
+res.table<-data.frame()
+for(i in celltypes){
+  cdata<-final.table[,i]
+  fdata <- matrix(c(cdata, 100-cdata), nrow = 2)
+  res<-fisher.test(fdata)
+  res.table.temp<-data.frame(Cell.Type=i,P.value=res$p.value)
+  res.table<-rbind(res.table,res.table.temp)
+}
+write.csv(res.table,file = "Celltype_P-value.csv",row.names = F)
+##Proportion plot
+plot.data<-data.frame()
+for(i in 1:7){
+  plot.temp<-data.frame(Cell.Type=colnames(final.table)[i], Cluster.Size=final.table[,i], Group=row.names(final.table))
+  plot.data<-rbind(plot.data,plot.temp)
+}
+plot.data$Cell.Type = factor(plot.data$Cell.Type, levels=c("Macrophage","Monocyte","T_cells","Neutrophils","Epithelial_cells","B_cell","DC"))
+p1<-ggplot(plot.data, aes(Cell.Type, Cluster.Size, fill=Group)) +
+  labs(x="", y = "Proportion of cells")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_bar(stat="identity")
+new.data<-log10(final.table["Death",]/final.table["Cured",])
+plot.data<-data.frame()
+for(i in 1:7){
+  plot.temp<-data.frame(Cell.Type=colnames(new.data)[i], Value=new.data[,i])
+  plot.data<-rbind(plot.data,plot.temp)
+}
+plot.data$Cell.Type = factor(plot.data$Cell.Type, levels=unique(plot.data$Cell.Type[order(plot.data$Value,decreasing = T)]))
+p2<-ggplot(plot.data, aes(Cell.Type,Value, fill=Value)) +
+  labs(x="", y = "Fold change of cluster size\n(Death VS Cured, Log10)")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_bar(stat="identity")
+pdf(file = "Celltype_change.pdf",width = 8,height = 3.5)
+plot_grid(p1,p2,ncol=2)
+dev.off()
+
 #Save data
 saveRDS(SC.data,file="COVID19_SCdata.rds")
 
