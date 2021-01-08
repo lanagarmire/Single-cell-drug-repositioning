@@ -181,7 +181,7 @@ my_drug_info<-read.table(file="Your_loacal_path_for_drug_reference/lung_drug_inf
 cmap.ref.profiles = GetDrugRef(drug.response.path = 'Your_loacal_path_for_drug_reference/lung_rankMatrix.txt',
                                probe.to.genes = my_gene_info, drug.info = my_drug_info)
 Drug.ident.res = GetDrug(gene.data = Gene.list, drug.ref.profiles = cmap.ref.profiles, repurposing.unit = "drug", connectivity = "negative", drug.type="compounds")
-saveRDS(Drug.ident.res,file="COVID19_drugs.rds")
+saveRDS(Drug.ident.res,file="COVID19_compounds.rds")
 
 #Select mono-compounds
 SC.data<-readRDS("COVID19_SCdata.rds")
