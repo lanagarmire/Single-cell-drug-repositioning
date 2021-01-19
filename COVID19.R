@@ -145,9 +145,11 @@ saveRDS(SC.data,file="COVID19_SCdata.rds")
 Mild.COVID19<-c("COVID19.C141","COVID19.C142","COVID19.C144")
 Severe.COVID19<-c("COVID19.C143","COVID19.C145","COVID19.C146","COVID19.C148","COVID19.C149","COVID19.C152")
 Healthy<-c("Healthy.C51","Healthy.C52","Healthy.C100")
+Deceased.Severe<-c("COVID19.C143","COVID19.C146")
+Cured.Severe<-c("COVID19.C145","COVID19.C148","COVID19.C149","COVID19.C152")
 
 #Get differential genes
-Gene.list<-GetGene(SC.integrated=SC.data,Case=Severe.COVID19,Control=Mild.COVID19,min.cells=3)
+Gene.list<-GetGene(SC.integrated=SC.data,Case=Deceased.Severe,Control=Cured.Severe,min.cells=3)
 
 #Save data
 saveRDS(Gene.list,file="COVID19_genelist.rds")
@@ -166,9 +168,9 @@ SC.data<-readRDS("COVID19_SCdata.rds")
 Drug.ident.res<-readRDS("COVID19_FDA_drugs.rds")
 Final.drugs<-TopDrug(SC.integrated=SC.data,
                      Drug.data=Drug.ident.res,
-                     Drug.FDR=0.1,
+                     Drug.FDR=0.05,
                      FDA.drug.only=TRUE,
-                     Case=Severe.COVID19
+                     Case=Deceased.Severe
 )
 
 #Save data
@@ -188,7 +190,7 @@ SC.data<-readRDS("COVID19_SCdata.rds")
 Drug.ident.res<-readRDS("COVID19_compounds.rds")
 Final.drugs<-TopDrug(SC.integrated=SC.data,
                      Drug.data=Drug.ident.res,
-                     Drug.FDR=0.1,
+                     Drug.FDR=0.05,
                      FDA.drug.only=FALSE,
                      Case=Severe.COVID19
 )
