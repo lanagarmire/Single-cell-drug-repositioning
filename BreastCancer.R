@@ -2,6 +2,8 @@
 
 library('Asgard')
 library('Seurat')
+
+#Your_local_path is the folder for downloaded GSE113197 and GSE123926 dataset
 setwd("Your_local_path/")
 
 #Load normal sample Ind5 from GSE113197 dataset
@@ -67,6 +69,7 @@ saveRDS(Gene.list,file="TNBC_genelist.rds")
 
 #Drug repurposing
 Gene.list<-readRDS("TNBC_genelist.rds")
+##breast_gene_info.txt, breast_drug_info.txt and breast_rankMatrix.txt are tissue specific drug reference produced by PrepareReference() function in Asgard https://github.com/lanagarmire/ASGARD
 my_gene_info<-read.table(file="Your_loacal_path_for_drug_reference/breast_gene_info.txt",sep="\t",header = T,quote = "")
 my_drug_info<-read.table(file="Your_loacal_path_for_drug_reference/breast_drug_info.txt",sep="\t",header = T,quote = "")
 drug.ref.profiles = GetDrugRef(drug.response.path = 'Your_loacal_path_for_drug_reference/breast_rankMatrix.txt',
@@ -78,6 +81,7 @@ saveRDS(Drug.ident.res,file="TNBC_drugs.rds")
 SC.data<-readRDS("TNBC_SCdata.rds")
 Gene.list<-readRDS("TNBC_genelist.rds")
 Drug.ident.res<-readRDS("TNBC_drugs.rds")
+##Your_local_path is the folder for gctx file from GSE92742 and GSE70138 datasets
 GSE92742.gctx.path="Your_local_path/GSE92742_Broad_LINCS_Level5_COMPZ.MODZ_n473647x12328.gctx"
 GSE70138.gctx.path="Your_local_path/GSE70138_Broad_LINCS_Level5_COMPZ_n118050x12328.gctx"
 Tissue="breast"
@@ -113,6 +117,7 @@ saveRDS(Final.combinations,file="TNBC_selected_drugcombinations.rds")
 SC.data<-readRDS("TNBC_SCdata.rds")
 Gene.list<-readRDS("TNBC_genelist.rds")
 Drug.ident.res<-readRDS("TNBC_drugs.rds")
+##Your_local_path is the folder for gctx file from GSE92742 and GSE70138 datasets
 GSE92742.gctx.path="Your_local_path/GSE92742_Broad_LINCS_Level5_COMPZ.MODZ_n473647x12328.gctx"
 GSE70138.gctx.path="Your_local_path/GSE70138_Broad_LINCS_Level5_COMPZ_n118050x12328.gctx"
 Tissue="breast"
