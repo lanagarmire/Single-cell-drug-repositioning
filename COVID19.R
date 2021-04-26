@@ -3,6 +3,7 @@
 library('Asgard')
 library('Seurat')
 
+#Your_local_path is the folder for downloaded GSE145926 dataset
 setwd("Your_local_path/")
 
 #Load data
@@ -156,6 +157,7 @@ saveRDS(Gene.list,file="COVID19_genelist.rds")
 
 #Drug repurposing using FDA-approved drugs
 Gene.list<-readRDS("COVID19_genelist.rds")
+##lung_gene_info.txt, lung_drug_info.txt and lung_rankMatrix.txt are tissue specific drug reference produced by PrepareReference() function in Asgard https://github.com/lanagarmire/ASGARD
 my_gene_info<-read.table(file="Your_loacal_path_for_drug_reference/lung_gene_info.txt",sep="\t",header = T,quote = "")
 my_drug_info<-read.table(file="Your_loacal_path_for_drug_reference/lung_drug_info.txt",sep="\t",header = T,quote = "")
 cmap.ref.profiles = GetDrugRef(drug.response.path = 'Your_loacal_path_for_drug_reference/lung_rankMatrix.txt',
@@ -178,6 +180,7 @@ saveRDS(Final.drugs,file="COVID19_selected_FDA_drugs.rds")
 
 #Drug repurposing using compounds
 Gene.list<-readRDS("COVID19_genelist.rds")
+##lung_gene_info.txt, lung_drug_info.txt and lung_rankMatrix.txt are tissue specific drug reference produced by PrepareReference() function in Asgard https://github.com/lanagarmire/ASGARD
 my_gene_info<-read.table(file="Your_loacal_path_for_drug_reference/lung_gene_info.txt",sep="\t",header = T,quote = "")
 my_drug_info<-read.table(file="Your_loacal_path_for_drug_reference/lung_drug_info.txt",sep="\t",header = T,quote = "")
 cmap.ref.profiles = GetDrugRef(drug.response.path = 'Your_loacal_path_for_drug_reference/lung_rankMatrix.txt',
