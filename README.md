@@ -1,4 +1,4 @@
-## Scripts data for analyzing single-cell RNA-sequencing data from breast cancer, leukemia and COVID19 using ASGARD.
+## Scripts and data of the ASGARD paper.
 #### /Drug
 ##### Scripts for single-cell drug repurposing using ASGARD. Please follow the instruction here: https://github.com/lanagarmire/Asgard to install ASGARD and perpare Drug Referecne Library before runing these scripts. 
 
