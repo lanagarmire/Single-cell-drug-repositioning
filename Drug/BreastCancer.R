@@ -102,15 +102,15 @@ if(by.CellType == TRUE){
 
 
 #Change sample names
-sample<-SC.data@meta.data$sample
+sample<-SC.integrated@meta.data$sample
 sample[which(sample=="Ind5")]<-"Normal1"
 sample[which(sample=="Ind6")]<-"Normal2"
 sample[which(sample=="Ind7")]<-"Normal3"
-SC.data@meta.data$sample<-sample
+SC.integrated@meta.data$sample<-sample
 
 #View alignment results
 pdf(file = "BC_plot.pdf",width = 12,height = 3)
-DimPlot(SC.data, reduction = "umap", split.by = "sample",group.by = "celltype")
+DimPlot(SC.integrated, reduction = "umap", split.by = "sample",group.by = "celltype")
 dev.off()
 #Save data
 saveRDS(SC.data,file="TNBC_SCdata.rds")
@@ -169,7 +169,7 @@ for(i in unique(SC.integrated@meta.data$celltype)){
   c_cells <- subset(SC.integrated, celltype == i)
   Idents(c_cells) <- "type"
   C_data <- FindMarkers(c_cells, ident.1 = "TNBC.PDX", ident.2 = "Normal")
-  C_data_for_drug <- data.frame(row.names=row.names(C_data),score=C_data$avg_logFC,adj.P.Val=C_data$p_val_adj,P.Value=C_data$p_val)
+  C_data_for_drug <- data.frame(row.names=row.names(C_data),score=C_data$avg_logFC,adj.P.Val=C_data$p_val_adj,P.Value=C_data$p_val) ##for Seurat version > 4.0, please use avg_log2FC instead of avg_logFC
   Gene.list[[i]] <- C_data_for_drug
   C_names <- c(C_names,i)
 }
@@ -189,7 +189,7 @@ for(i in unique(SC.integrated@meta.data$celltype)){
   c_cells <- subset(SC.integrated, celltype == i)
   Idents(c_cells) <- "type"
   C_data <- FindMarkers(c_cells, ident.1 = "TNBC.PDX", ident.2 = "Normal", test.use = "DESeq2")
-  C_data_for_drug <- data.frame(row.names=row.names(C_data),score=C_data$avg_logFC,adj.P.Val=C_data$p_val_adj,P.Value=C_data$p_val)
+  C_data_for_drug <- data.frame(row.names=row.names(C_data),score=C_data$avg_logFC,adj.P.Val=C_data$p_val_adj,P.Value=C_data$p_val) ##for Seurat version > 4.0, please use avg_log2FC instead of avg_logFC
   Gene.list[[i]] <- C_data_for_drug
   C_names <- c(C_names,i)
 }
