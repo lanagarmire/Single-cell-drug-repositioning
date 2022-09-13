@@ -3,6 +3,8 @@ sotrovimab
 bamlanivimab
 etesevimab 
 casirivimab
+nirmatrelvir
+ritonavir
 olumiant
 tocilizumab
 imdevimab
@@ -17,12 +19,5 @@ leflunomide
 cimetidine
 valproic-acid
 genistein
-
-
-
-
-
-
-
-
-
+raloxifene
+methotrexate
