@@ -114,12 +114,10 @@ PD.table<-data.frame(drug=PD,group="PD")
 path<-"CLUE/Single_cluster_TNBC/"
 file<-"cs_n8x476251.gct"
 my_ds <- parse_gctx(paste0(path,file))
-Drug.data1<-my_ds@mat
-Drugs1<-subset(my_ds@rdesc,pert_type=="trt_cp")
-Drugs<-Drugs1
+Drug.data<-my_ds@mat
+Drugs<-subset(my_ds@rdesc,pert_type=="trt_cp")
 Drug.data<-Drug.data[rownames(Drugs),]
 Drugs<-Drugs$pert_iname
-Drug.data<-Drug.data[,-grep("\\.",colnames(Drug.data))]
 Drug.data<-cbind(my_ds@rdesc$pert_iname,Drug.data)
 colnames(Drug.data)[1]<-"drug"
 Drug.data<-as.data.frame(Drug.data)
