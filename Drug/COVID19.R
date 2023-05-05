@@ -1,5 +1,9 @@
 #Download dataset GSE145926 andd GSE158055 from GEO before running this script.
+#Dataset link: 
+#GSE145926: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE145926
+#GSE158055: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE158055
 
+#Load library
 library('Asgard')
 library('Seurat')
 
